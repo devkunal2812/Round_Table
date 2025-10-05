@@ -13,7 +13,7 @@ Roundtable is a modern productivity and collaboration platform built for individ
 - 🎯 **Goal Management** – Define, track, and complete personal or team goals  
 - ✅ **Task Management** – Prioritize and organize tasks with due dates and assignees  
 - 🧠 **Knowledge Spaces** – Centralize collaboration with shared workspaces  
-- 📂 **Resource Sharing** – Upload and share links, files, or references  
+- 📂 **Resource Sharing** – Upload and share links, files, or references 
 - 🖼️ **Project Showcase** – Highlight and display your accomplishments  
 - 🔔 **Real-time Notifications** – Get instant updates on activity and progress  
 
