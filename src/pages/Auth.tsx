@@ -45,11 +45,14 @@ export default function Auth({ mode }: AuthProps) {
     setIsLoading(true);
     try {
       if (isSignUp) {
+        // Sign up then immediately sign in — no email confirmation needed
         await signUp(formData.email, formData.password, formData.fullName);
-        toast({ title: "Account created!", description: "Check your email to confirm your account." });
+        await signIn(formData.email, formData.password);
+        toast({ title: "Welcome to Roundtable! 🎉", description: "Your account is ready." });
+        // AuthContext session change will automatically redirect to home via App.tsx
       } else {
         await signIn(formData.email, formData.password);
-        toast({ title: "Welcome back!", description: "Signed in successfully." });
+        toast({ title: "Welcome back! 👋", description: "Signed in successfully." });
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message ?? "Something went wrong", variant: "destructive" });

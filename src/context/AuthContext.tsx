@@ -59,6 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { full_name: fullName ?? '' } },
     })
     if (error) throw error
+    // If email confirmation is disabled in Supabase, session is returned immediately
+    // AuthContext onAuthStateChange will pick it up and redirect automatically
     return data
   }
 
