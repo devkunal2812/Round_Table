@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Bell, User, Shield, Palette, Globe, HelpCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, User, Shield, Palette, Globe, HelpCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,21 +8,67 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
+import { useAuthContext } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuthContext();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+
   const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    desktop: true,
-    marketing: false
+    email: true, push: false, desktop: true, marketing: false,
   });
 
   const [profile, setProfile] = useState({
-    name: "Captain",
-    email: "captain@dot.com",
-    role: "Product Manager"
+    full_name: "", username: "", role: "", bio: "", email: "",
   });
+
+  // Load real profile from DB on mount
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name, username, role, bio")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile({
+          full_name: data.full_name ?? "",
+          username: data.username ?? "",
+          role: data.role ?? "",
+          bio: data.bio ?? "",
+          email: user.email ?? "",
+        });
+      });
+  }, [user]);
+
+  const saveProfile = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: profile.full_name,
+        username: profile.username,
+        role: profile.role,
+        bio: profile.bio,
+      })
+      .eq("id", user.id);
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Profile saved!", description: "Your changes have been saved." });
+    }
+    setSaving(false);
+  };
+
+  const initials = profile.full_name
+    ? profile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : profile.username?.[0]?.toUpperCase() ?? "?";
 
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
@@ -67,8 +113,8 @@ export default function Settings() {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
                 <Avatar className="h-20 w-20 bg-gradient-primary">
-                  <AvatarFallback className="bg-transparent text-white text-2xl">
-                    😎
+                  <AvatarFallback className="bg-gradient-primary text-white text-2xl font-bold">
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -82,8 +128,8 @@ export default function Settings() {
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
-                    value={profile.name}
-                    onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                    value={profile.full_name}
+                    onChange={(e) => setProfile(prev => ({ ...prev, full_name: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -92,21 +138,48 @@ export default function Settings() {
                     id="email"
                     type="email"
                     value={profile.email}
-                    onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                    disabled
+                    className="opacity-60"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    value={profile.username}
+                    onChange={(e) => setProfile(prev => ({ ...prev, username: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Input
+                    id="role"
+                    value={profile.role}
+                    onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="bio">Bio</Label>
                 <Input
-                  id="role"
-                  value={profile.role}
-                  onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))}
+                  id="bio"
+                  value={profile.bio}
+                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                  placeholder="Tell the team about yourself..."
                 />
               </div>
 
-              <Button className="bg-gradient-primary text-white">Save Changes</Button>
+              <Button
+                className="bg-gradient-primary text-white"
+                onClick={saveProfile}
+                disabled={saving}
+              >
+                {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save Changes"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,7 +1,6 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useLocation, Link } from "react-router-dom";
-import { Search, Bell, ChevronDown, Menu, X, LogOut } from "lucide-react";
+import { Search, ChevronDown, Menu, X, LogOut, Settings } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { GlobalSearch } from "@/components/GlobalSearch";
@@ -13,9 +12,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthContext } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 const navigation = [
   { name: "Goal board", href: "/" },
@@ -33,27 +35,42 @@ export function Layout({ onLogout }: LayoutProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuthContext();
+  const [profile, setProfile] = useState<{ full_name: string | null; username: string | null } | null>(null);
 
-  const handleSignOut = () => {
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out",
-    });
-    onLogout();
+  // Load real profile from DB
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name, username")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => setProfile(data));
+  }, [user]);
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : (profile?.username?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?");
+
+  const displayName = profile?.full_name || profile?.username || user?.email?.split("@")[0] || "Account";
+
+  const handleSignOut = async () => {
+    toast({ title: "Signed out", description: "See you next time!" });
+    await onLogout();
   };
-  
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo */}
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="flex items-center justify-between px-6 py-3">
+
+          {/* Logo + Nav */}
           <div className="flex items-center gap-8">
             <Link to="/" className="text-2xl font-bold italic text-foreground transition-all duration-200 hover:scale-105 hover:text-primary">
               Roundtable
             </Link>
-            
-            {/* Navigation */}
             <nav className="hidden md:flex items-center gap-1">
               {navigation.map((item) => (
                 <Link
@@ -61,7 +78,7 @@ export function Layout({ onLogout }: LayoutProps) {
                   to={item.href}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105 ${
                     location.pathname === item.href
-                      ? "bg-secondary text-secondary-foreground shadow-soft"
+                      ? "bg-primary/10 text-primary shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
                   }`}
                 >
@@ -71,12 +88,10 @@ export function Layout({ onLogout }: LayoutProps) {
             </nav>
           </div>
 
-          {/* Search and User */}
-          <div className="flex items-center gap-4">
-            {/* Global Search */}
+          {/* Right side */}
+          <div className="flex items-center gap-3">
             <GlobalSearch />
 
-            {/* Mobile menu button */}
             <Button
               variant="ghost"
               size="icon"
@@ -86,33 +101,45 @@ export function Layout({ onLogout }: LayoutProps) {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
 
-            {/* Theme Toggle */}
             <ThemeToggle />
-
-            {/* Notifications */}
             <NotificationCenter />
 
-            {/* User Menu */}
+            {/* User dropdown — shows real name + initials from DB */}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 transition-all duration-200 hover:scale-105 focus:outline-none">
-                <Avatar className="h-8 w-8 bg-gradient-primary transition-all duration-200 hover:shadow-soft">
-                  <AvatarFallback className="bg-transparent text-white">
-                    😎
+                <Avatar className="h-8 w-8 bg-gradient-primary">
+                  <AvatarFallback className="bg-gradient-primary text-white text-xs font-bold">
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
-                <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <div className="hidden sm:flex flex-col items-start">
+                  <span className="text-sm font-medium text-foreground leading-none">{displayName}</span>
+                  <span className="text-xs text-muted-foreground leading-none mt-0.5">{user?.email}</span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 animate-in slide-in-from-top-2">
+
+              <DropdownMenuContent align="end" className="w-56">
+                {/* Profile info header */}
+                <div className="px-3 py-2 border-b border-border">
+                  <p className="text-sm font-medium text-foreground">{displayName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+
                 <DropdownMenuItem asChild>
                   <ProfileDialog />
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link to="/settings" className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors">
-                    <ChevronDown className="mr-2 h-4 w-4 rotate-90" />
+                  <Link to="/settings" className="flex items-center cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
                   onClick={handleSignOut}
                 >
@@ -124,17 +151,17 @@ export function Layout({ onLogout }: LayoutProps) {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card/50 backdrop-blur-sm">
-            <nav className="px-6 py-4 space-y-2">
+          <div className="md:hidden border-t border-border bg-card/80 backdrop-blur-sm">
+            <nav className="px-6 py-4 space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`block px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === item.href
-                      ? "bg-secondary text-secondary-foreground"
+                      ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -142,15 +169,10 @@ export function Layout({ onLogout }: LayoutProps) {
                   {item.name}
                 </Link>
               ))}
-              
-              {/* Mobile Search */}
-              <div className="pt-4">
+              <div className="pt-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search"
-                    className="pl-10 bg-muted/50 border-border"
-                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input placeholder="Search" className="pl-10 bg-muted/50 border-border" />
                 </div>
               </div>
             </nav>
@@ -158,7 +180,6 @@ export function Layout({ onLogout }: LayoutProps) {
         )}
       </header>
 
-      {/* Main Content */}
       <main className="flex-1">
         <Outlet />
       </main>
