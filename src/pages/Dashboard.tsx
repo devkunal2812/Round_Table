@@ -160,7 +160,32 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-bold italic text-foreground mb-2">
-              {getGreeting()}, {displayName}! 👋
+              {getGreeting()}, {displayName}!{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 72 72"
+                className="inline-block w-10 h-10 align-middle"
+              >
+                <g>
+                  {/* Sleeve */}
+                  <path fill="#FCEA2B" d="M27.2 53.27c-1.67 3.5-5.84 4.99-9.34 3.32L8.33 52.1c-3.5-1.67-4.99-5.84-3.32-9.34l12.1-25.34 13.08 6.25-2.99 29.6z"/>
+                  {/* Hand back */}
+                  <path fill="#FCEA2B" d="M22.11 23.42s7.2-14.38 8.77-17.25c1.58-2.87 5.09-3.25 6.86-2.08 1.76 1.17 2.35 3.91.77 6.78L33.43 20.5"/>
+                  {/* Fingers */}
+                  <path fill="#FCEA2B" d="M33.43 20.5s5.46-9.91 7.04-11.77c1.57-1.86 4.8-1.76 6.17-.16 1.38 1.6.98 4.09-.59 5.95L40.44 22.5"/>
+                  <path fill="#FCEA2B" d="M40.44 22.5s4.31-7.08 5.89-8.43c1.57-1.35 4.33-.98 5.47.9 1.13 1.87.35 4.09-1.22 5.44l-4.9 6.49"/>
+                  <path fill="#FCEA2B" d="M45.68 26.9s3.07-4.53 4.65-5.36c1.57-.83 3.84.12 4.57 1.82.73 1.7-.27 3.62-1.85 4.45l-5.49 7.27"/>
+                  {/* Palm */}
+                  <path fill="#FCEA2B" d="M22.11 23.42l11.32 5.4-3.57 24.45-12.76-6.1 5.01-23.75z"/>
+                  {/* Outlines */}
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M27.2 53.27c-1.67 3.5-5.84 4.99-9.34 3.32L8.33 52.1c-3.5-1.67-4.99-5.84-3.32-9.34l12.1-25.34 13.08 6.25-2.99 29.6z"/>
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22.11 23.42s7.2-14.38 8.77-17.25c1.58-2.87 5.09-3.25 6.86-2.08 1.76 1.17 2.35 3.91.77 6.78L33.43 20.5"/>
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M33.43 20.5s5.46-9.91 7.04-11.77c1.57-1.86 4.8-1.76 6.17-.16 1.38 1.6.98 4.09-.59 5.95L40.44 22.5"/>
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M40.44 22.5s4.31-7.08 5.89-8.43c1.57-1.35 4.33-.98 5.47.9 1.13 1.87.35 4.09-1.22 5.44l-4.9 6.49"/>
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M45.68 26.9s3.07-4.53 4.65-5.36c1.57-.83 3.84.12 4.57 1.82.73 1.7-.27 3.62-1.85 4.45l-5.49 7.27"/>
+                  <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22.11 23.42l11.32 5.4"/>
+                </g>
+              </svg>
             </h1>
             <p className="text-muted-foreground text-lg">
               Welcome back to Roundtable. Let's make today productive!
