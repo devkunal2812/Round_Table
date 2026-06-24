@@ -2,125 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 250 100% 98%;
-    --foreground: 240 10% 15%;
+    /* ── Page & surfaces ── */
+    --background: 250 40% 97%;
+    --foreground: 240 15% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    --card-foreground: 240 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 240 15% 12%;
 
-    --primary: 280 100% 70%;
+    /* ── Brand ── */
+    --primary: 280 85% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 320 100% 88%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 320 60% 90%;
+    --secondary-foreground: 280 50% 25%;
 
-    --muted: 250 30% 95%;
-    --muted-foreground: 240 5% 50%;
+    --muted: 250 25% 93%;
+    --muted-foreground: 240 8% 45%;
 
-    --accent: 320 100% 88%;
-    --accent-foreground: 240 10% 15%;
+    --accent: 280 60% 92%;
+    --accent-foreground: 280 60% 25%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 250 30% 90%;
-    --input: 250 30% 90%;
-    --ring: 280 100% 70%;
+    --border: 250 20% 86%;
+    --input: 250 20% 86%;
+    --ring: 280 85% 60%;
 
-    /* Custom app colors */
-    --dot-pink: 320 100% 88%;
-    --dot-purple: 280 100% 70%;
-    --dot-blue: 213 100% 70%;
-    --dot-green: 137 72% 94%;
-    --dot-orange: 25 95% 70%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--dot-purple)), hsl(var(--dot-pink)));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100% / 0.8), hsl(250 30% 98%));
-    
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -2px hsl(280 100% 70% / 0.1);
-    --shadow-card: 0 2px 10px -2px hsl(240 10% 15% / 0.05);
-    
+    /* ── Custom dot colors (light) ──
+       All have enough contrast on white cards
+    */
+    --dot-pink:   330 80% 62%;   /* vivid pink      */
+    --dot-purple: 280 85% 60%;   /* brand purple    */
+    --dot-blue:   213 90% 55%;   /* clear blue      */
+    --dot-green:  145 65% 42%;   /* readable green  */
+    --dot-orange: 25  90% 55%;   /* warm orange     */
+
+    /* ── Gradients ── */
+    --gradient-primary: linear-gradient(135deg, hsl(280 85% 60%), hsl(330 80% 62%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(250 40% 97%));
+
+    /* ── Shadows ── */
+    --shadow-soft: 0 4px 24px -2px hsl(280 85% 60% / 0.12);
+    --shadow-card: 0 2px 12px -2px hsl(240 15% 12% / 0.08);
+
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 250 40% 97%;
+    --sidebar-foreground: 240 8% 30%;
+    --sidebar-primary: 280 85% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 250 25% 93%;
+    --sidebar-accent-foreground: 240 15% 12%;
+    --sidebar-border: 250 20% 86%;
+    --sidebar-ring: 280 85% 60%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* ── Page & surfaces ── */
+    --background: 240 12% 8%;
+    --foreground: 240 5% 93%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 10% 13%;
+    --card-foreground: 240 5% 93%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 10% 13%;
+    --popover-foreground: 240 5% 93%;
 
-    --primary: 280 100% 70%;
-    --primary-foreground: 240 10% 3.9%;
+    /* ── Brand ── */
+    --primary: 280 85% 68%;
+    --primary-foreground: 240 12% 8%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 8% 20%;
+    --secondary-foreground: 240 5% 93%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 240 8% 18%;
+    --muted-foreground: 240 5% 58%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 280 30% 22%;
+    --accent-foreground: 280 85% 85%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 280 100% 70%;
+    --border: 240 8% 22%;
+    --input: 240 8% 22%;
+    --ring: 280 85% 68%;
 
-    /* Dark mode custom colors */
-    --dot-pink: 320 100% 75%;
-    --dot-purple: 280 100% 70%;
-    --dot-blue: 213 100% 70%;
-    --dot-green: 137 72% 70%;
-    --dot-orange: 25 95% 70%;
-    
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--dot-purple)), hsl(var(--dot-pink)));
-    --gradient-card: linear-gradient(145deg, hsl(240 10% 3.9% / 0.8), hsl(240 3.7% 15.9%));
-    
-    /* Dark mode shadows */
-    --shadow-soft: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 2px 10px -2px hsl(0 0% 0% / 0.2);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* ── Custom dot colors (dark) ──
+       Lighter/brighter so they pop on dark cards
+    */
+    --dot-pink:   330 85% 68%;   /* bright pink     */
+    --dot-purple: 280 85% 72%;   /* light purple    */
+    --dot-blue:   213 90% 65%;   /* sky blue        */
+    --dot-green:  145 60% 52%;   /* mid green       */
+    --dot-orange: 25  90% 62%;   /* bright orange   */
+
+    /* ── Gradients ── */
+    --gradient-primary: linear-gradient(135deg, hsl(280 85% 68%), hsl(330 85% 68%));
+    --gradient-card: linear-gradient(145deg, hsl(240 10% 15%), hsl(240 8% 11%));
+
+    /* ── Shadows ── */
+    --shadow-soft: 0 4px 24px -2px hsl(0 0% 0% / 0.35);
+    --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.25);
+
+    --sidebar-background: 240 12% 8%;
+    --sidebar-foreground: 240 5% 80%;
+    --sidebar-primary: 280 85% 68%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 240 8% 18%;
+    --sidebar-accent-foreground: 240 5% 93%;
+    --sidebar-border: 240 8% 22%;
+    --sidebar-ring: 280 85% 68%;
   }
 }
 
@@ -132,31 +130,29 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
-  
-  /* Smooth scrolling */
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: hsl(var(--muted));
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 3px;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground));
   }
-  
-  /* Focus styles */
+
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
   }
