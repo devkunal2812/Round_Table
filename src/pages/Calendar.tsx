@@ -41,8 +41,8 @@ const months = [
 ];
 
 export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
-  const [selectedDate, setSelectedDate] = useState(18);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date().getDate());
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -80,17 +80,19 @@ export default function Calendar() {
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const isSelected = day === selectedDate;
-      const hasEvents = day === 18 || day === 19 || day === 20;
-      
+      const isToday = day === new Date().getDate() &&
+        currentDate.getMonth() === new Date().getMonth() &&
+        currentDate.getFullYear() === new Date().getFullYear();
+
       days.push(
         <div
           key={day}
           className={`h-12 flex items-center justify-center text-sm cursor-pointer rounded-lg transition-colors ${
             isSelected
-              ? 'bg-primary text-primary-foreground'
-              : hasEvents
-              ? 'bg-dot-blue text-white'
-              : 'hover:bg-muted'
+              ? 'bg-primary text-primary-foreground font-semibold'
+              : isToday
+              ? 'bg-dot-blue/20 text-dot-blue font-semibold border border-dot-blue'
+              : 'hover:bg-muted text-foreground'
           }`}
           onClick={() => setSelectedDate(day)}
         >
