@@ -1,80 +1,69 @@
-
 import { useState } from "react";
 import { Apple, Chrome } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthContext } from "@/context/AuthContext";
 
 interface AuthProps {
   mode: "signin" | "signup";
-  onLogin: () => void;
+  onLogin?: () => void;
+  onSignup?: () => void;
 }
 
-export default function Auth({ mode, onLogin }: AuthProps) {
+export default function Auth({ mode }: AuthProps) {
   const [formData, setFormData] = useState({
+    fullName: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { signIn, signUp, signInWithGoogle } = useAuthContext();
 
   const isSignUp = mode === "signup";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Basic validation
     if (!formData.email || !formData.password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      setIsLoading(false);
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-
     if (isSignUp && formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive"
-      });
-      setIsLoading(false);
+      toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
       return;
     }
 
-    // Simulate authentication delay
-    setTimeout(() => {
-      toast({
-        title: "Success",
-        description: isSignUp ? "Account created successfully!" : "Welcome back!",
-      });
-      onLogin();
+    setIsLoading(true);
+    try {
+      if (isSignUp) {
+        await signUp(formData.email, formData.password, formData.fullName);
+        toast({ title: "Account created!", description: "Check your email to confirm your account." });
+      } else {
+        await signIn(formData.email, formData.password);
+        toast({ title: "Welcome back!", description: "Signed in successfully." });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message ?? "Something went wrong", variant: "destructive" });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    toast({
-      title: "Social Login",
-      description: `${provider} login would be implemented here`,
-    });
-    // For demo purposes, we'll just log them in
-    setTimeout(() => {
-      onLogin();
-    }, 500);
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message ?? "Google sign-in failed", variant: "destructive" });
+    }
   };
 
   return (
@@ -82,46 +71,22 @@ export default function Auth({ mode, onLogin }: AuthProps) {
       <Card className="w-full max-w-md bg-gradient-card shadow-soft border-border/50">
         <CardContent className="p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold italic text-foreground mb-2">
-              RoundTable
-            </h1>
+            <h1 className="text-3xl font-bold italic text-foreground mb-2">Roundtable</h1>
             <p className="text-muted-foreground">
               {isSignUp ? "Create your account" : "Sign in to your account"}
             </p>
           </div>
 
           <div className="space-y-4">
-            {/* Social Login Buttons */}
-            <Button 
-              variant="outline" 
+            {/* Google */}
+            <Button
+              variant="outline"
               className="w-full justify-start gap-3 h-12 bg-background hover:bg-muted transition-colors"
-              onClick={() => handleSocialLogin("Google")}
+              onClick={handleGoogleLogin}
               type="button"
             >
               <Chrome className="h-5 w-5 text-blue-500" />
               <span className="text-foreground">Continue with Google</span>
-            </Button>
-
-            <Button 
-              variant="outline" 
-              className="w-full justify-start gap-3 h-12 bg-background hover:bg-muted transition-colors"
-              onClick={() => handleSocialLogin("Apple")}
-              type="button"
-            >
-              <Apple className="h-5 w-5 text-foreground" />
-              <span className="text-foreground">Continue with Apple</span>
-            </Button>
-
-            <Button 
-              variant="outline" 
-              className="w-full justify-start gap-3 h-12 bg-background hover:bg-muted transition-colors"
-              onClick={() => handleSocialLogin("Twitter")}
-              type="button"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-              <span className="text-foreground">Continue with Twitter</span>
             </Button>
 
             {/* Divider */}
@@ -133,66 +98,64 @@ export default function Auth({ mode, onLogin }: AuthProps) {
 
             {/* Email Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              {isSignUp && (
                 <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email address"
-                  value={formData.email}
+                  type="text"
+                  name="fullName"
+                  placeholder="Full name"
+                  value={formData.fullName}
                   onChange={handleInputChange}
                   className="h-12 bg-background border-border"
-                  required
                 />
-              </div>
-
-              {isSignUp && (
-                <div>
-                  <Input
-                    type="password"
-                    name="password"
-                    placeholder="Create password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="h-12 bg-background border-border"
-                    required
-                  />
-                </div>
               )}
-
-              <div>
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="h-12 bg-background border-border"
+                required
+              />
+              <Input
+                type="password"
+                name="password"
+                placeholder={isSignUp ? "Create password" : "Password"}
+                value={formData.password}
+                onChange={handleInputChange}
+                className="h-12 bg-background border-border"
+                required
+              />
+              {isSignUp && (
                 <Input
                   type="password"
-                  name={isSignUp ? "confirmPassword" : "password"}
-                  placeholder={isSignUp ? "Confirm password" : "Password"}
-                  value={isSignUp ? formData.confirmPassword : formData.password}
+                  name="confirmPassword"
+                  placeholder="Confirm password"
+                  value={formData.confirmPassword}
                   onChange={handleInputChange}
                   className="h-12 bg-background border-border"
                   required
                 />
-              </div>
+              )}
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-12 bg-dot-blue text-white hover:bg-dot-blue/90 shadow-soft transition-all duration-300"
                 disabled={isLoading}
               >
-                {isLoading ? "Please wait..." : "Continue"}
+                {isLoading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
               </Button>
             </form>
 
-            {/* Footer Links */}
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
-                {isSignUp 
-                  ? "Already have an account? " 
-                  : "Don't have an account? "
-                }
-                <a 
-                  href={isSignUp ? "/auth" : "/signup"} 
+                {isSignUp ? "Already have an account? " : "Don't have an account? "}
+                <Link
+                  to={isSignUp ? "/auth" : "/signup"}
                   className="text-primary hover:underline font-medium"
                 >
                   {isSignUp ? "Sign in" : "Sign up"}
-                </a>
+                </Link>
               </p>
             </div>
           </div>

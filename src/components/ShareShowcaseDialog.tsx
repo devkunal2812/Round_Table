@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Link2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ShareShowcaseDialogProps {
   children: React.ReactNode;
 }
 
 export function ShareShowcaseDialog({ children }: ShareShowcaseDialogProps) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     projectTitle: "",
     projectDescription: "",
@@ -35,12 +38,13 @@ export function ShareShowcaseDialog({ children }: ShareShowcaseDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sharing showcase:", formData);
-    // Handle showcase sharing
+    toast({ title: "Project showcased!", description: `"${formData.projectTitle}" is now live on the Showcase.` });
+    setFormData({ projectTitle: "", projectDescription: "", projectLink: "", niche: "Dev", coverImage: null });
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Paperclip } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddGoalDialogProps {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ interface AddGoalDialogProps {
 }
 
 export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -42,6 +45,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
       deadline: formData.dueDate,
       priority: formData.setPriority ? "High" : "Medium"
     });
+    toast({ title: "Goal added!", description: `"${formData.title}" has been added to your goals.` });
     // Reset form
     setFormData({
       title: "",
@@ -51,10 +55,11 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
       setPriority: false,
       resources: []
     });
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

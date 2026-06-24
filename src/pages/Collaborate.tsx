@@ -1,5 +1,5 @@
-
-import { Plus, MessageCircle, Users, Target, Share2 } from "lucide-react";
+import { useState } from "react";
+import { Plus, MessageCircle, Users, Target, Share2, Lock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,62 +11,78 @@ import { ShareResourceDialog } from "@/components/ShareResourceDialog";
 
 const spaces = [
   {
-    title: "Saturday hangouts",
-    description: "A curated circle for purposeful learning and building",
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-purple", "bg-dot-blue", "bg-dot-green"]
+    title: "Saturday Hangouts",
+    description: "A curated circle for purposeful learning, building side projects, and growing together.",
+    members: ["Ashutosh", "Ayush", "Bhaviya"],
+    memberCount: 32,
+    avatarColors: ["bg-dot-purple", "bg-dot-blue", "bg-dot-green"],
+    isPublic: true,
   },
   {
-    title: "Saturday hangouts", 
-    description: "A curated circle for purposeful learning and building",
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-pink", "bg-dot-orange", "bg-dot-blue"]
+    title: "Design Jam",
+    description: "Weekly design challenges, Figma critiques, and UI inspiration for the creative minds.",
+    members: ["Krish", "Jay", "Priya"],
+    memberCount: 18,
+    avatarColors: ["bg-dot-pink", "bg-dot-orange", "bg-dot-blue"],
+    isPublic: true,
   },
   {
-    title: "Saturday hangouts",
-    description: "A curated circle for purposeful learning and building", 
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-orange", "bg-dot-green", "bg-dot-purple"]
+    title: "Open Source Squad",
+    description: "Collaborate on open source contributions, review PRs, and share learning resources.",
+    members: ["Dnyanesh", "Kunal", "Rahul"],
+    memberCount: 24,
+    avatarColors: ["bg-dot-orange", "bg-dot-green", "bg-dot-purple"],
+    isPublic: false,
   },
   {
-    title: "Saturday hangouts",
-    description: "A curated circle for purposeful learning and building",
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-blue", "bg-dot-pink", "bg-dot-orange"]
+    title: "Product Builders",
+    description: "For people building and shipping products. Share progress, get feedback, stay accountable.",
+    members: ["Srujal", "Ashutosh", "Ananya"],
+    memberCount: 14,
+    avatarColors: ["bg-dot-blue", "bg-dot-pink", "bg-dot-orange"],
+    isPublic: false,
   },
   {
-    title: "Saturday hangouts",
-    description: "A curated circle for purposeful learning and building",
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-green", "bg-dot-purple", "bg-dot-pink"]
+    title: "Career Launchpad",
+    description: "Resume reviews, mock interviews, referrals, and job hunt strategies for the team.",
+    members: ["Jay", "Bhaviya", "Ravi"],
+    memberCount: 41,
+    avatarColors: ["bg-dot-green", "bg-dot-purple", "bg-dot-pink"],
+    isPublic: true,
   },
   {
-    title: "Saturday hangouts",
-    description: "A curated circle for purposeful learning and building",
-    members: ["Ashutosh", "Ayush", "Bhaviya", "and 29 others"],
-    avatarColors: ["bg-dot-purple", "bg-dot-orange", "bg-dot-blue"]
-  }
+    title: "Deep Work Circle",
+    description: "Accountability sessions, focus timers, and deep work logs for getting things done.",
+    members: ["Kunal", "Krish", "Dnyanesh"],
+    memberCount: 9,
+    avatarColors: ["bg-dot-purple", "bg-dot-orange", "bg-dot-blue"],
+    isPublic: false,
+  },
 ];
 
 const buddies = [
-  { name: "Kunal Chauhan", role: "Developer", status: "chat", avatar: "bg-dot-blue" },
-  { name: "Krish Prajapati", role: "Designer", status: "online", avatar: "bg-dot-pink" },
+  { name: "Kunal Chauhan", role: "Developer", status: "online", avatar: "bg-dot-blue" },
+  { name: "Krish Prajapati", role: "Designer", status: "chat", avatar: "bg-dot-pink" },
   { name: "Dnyanesh Chaudhari", role: "Developer", status: "chat", avatar: "bg-dot-green" },
   { name: "Jay Nirmal", role: "Designer", status: "chat", avatar: "bg-dot-orange" },
-  { name: "Srujal Shah", role: "Content Writer ", status: "chat", avatar: "bg-dot-purple" }
+  { name: "Srujal Shah", role: "Content Writer", status: "chat", avatar: "bg-dot-purple" },
 ];
 
 export default function Collaborate() {
+  const [spaceList, setSpaceList] = useState(spaces);
+
   const handleAddGoal = (goalData: any) => {
     console.log("Adding goal:", goalData);
-    // Handle goal creation logic here
   };
 
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold italic text-foreground">Spaces created by you</h1>
+        <div>
+          <h1 className="text-3xl font-bold italic text-foreground">Your Spaces</h1>
+          <p className="text-muted-foreground mt-1">Collaborate with groups that share your goals</p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <CreateSpaceDialog>
             <Button className="bg-dot-green text-white shadow-soft hover:shadow-lg transition-all duration-300 rounded-lg">
@@ -97,24 +113,29 @@ export default function Collaborate() {
 
       {/* Spaces Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {spaces.map((space, index) => (
-          <Card key={index} className="bg-gradient-card shadow-card border-border/50 hover:shadow-soft transition-all duration-300 cursor-pointer group">
+        {spaceList.map((space, index) => (
+          <Card
+            key={index}
+            className="bg-gradient-card shadow-card border-border/50 hover:shadow-soft transition-all duration-300 cursor-pointer group"
+          >
             <CardContent className="p-6">
-               {/* Avatar */}
-               <div className="mb-4">
-                 <Avatar className="h-12 w-12 bg-dot-pink group-hover:scale-105 transition-transform">
-                   <AvatarFallback className="bg-transparent text-white">
-                     😎
-                   </AvatarFallback>
-                 </Avatar>
-               </div>
+              {/* Avatar */}
+              <div className="mb-4 flex items-center justify-between">
+                <Avatar className="h-12 w-12 bg-dot-pink group-hover:scale-105 transition-transform">
+                  <AvatarFallback className="bg-transparent text-white text-xl">
+                    {space.title[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <Badge variant="outline" className="text-xs gap-1 flex items-center">
+                  {space.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                  {space.isPublic ? "Public" : "Private"}
+                </Badge>
+              </div>
 
               {/* Content */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-lg text-foreground">{space.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {space.description}
-                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{space.description}</p>
 
                 {/* Member Avatars */}
                 <div className="flex items-center gap-2">
@@ -122,13 +143,13 @@ export default function Collaborate() {
                     {space.avatarColors.map((color, avatarIndex) => (
                       <Avatar key={avatarIndex} className={`h-6 w-6 ${color} border-2 border-background`}>
                         <AvatarFallback className="bg-transparent text-white text-xs">
-                          😎
+                          {space.members[avatarIndex]?.[0]}
                         </AvatarFallback>
                       </Avatar>
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground ml-2">
-                    {space.members.join(', ')}
+                  <span className="text-xs text-muted-foreground ml-1">
+                    {space.members.slice(0, 2).join(", ")} & {space.memberCount - 2} others
                   </span>
                 </div>
               </div>
@@ -139,8 +160,8 @@ export default function Collaborate() {
 
       {/* Your Buddies Section */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold italic text-foreground">Your buddies</h2>
-        
+        <h2 className="text-2xl font-bold italic text-foreground">Your Buddies</h2>
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 max-w-2xl">
           {buddies.map((buddy, index) => (
             <Card key={index} className="bg-gradient-card shadow-card border-border/50 hover:shadow-soft transition-all duration-300">
@@ -149,7 +170,7 @@ export default function Collaborate() {
                   <div className="flex items-center gap-3">
                     <Avatar className={`h-10 w-10 ${buddy.avatar}`}>
                       <AvatarFallback className="bg-transparent text-white">
-                        😎
+                        {buddy.name[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div>
@@ -157,10 +178,10 @@ export default function Collaborate() {
                       <div className="text-xs text-muted-foreground">{buddy.role}</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {buddy.status === "online" ? (
-                      <Badge className="bg-dot-green text-white border-dot-green/30">
+                      <Badge className="bg-dot-green text-foreground border-dot-green/30 dark:text-white">
                         Online
                       </Badge>
                     ) : (
@@ -174,16 +195,6 @@ export default function Collaborate() {
               </CardContent>
             </Card>
           ))}
-        </div>
-      </div>
-
-      {/* Chat Input */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2">
-        <div className="flex items-center gap-2 bg-card shadow-soft rounded-full px-4 py-2 border border-border">
-          <Avatar className="h-6 w-6 bg-muted">
-            <AvatarFallback className="text-xs">💬</AvatarFallback>
-          </Avatar>
-          <span className="text-sm text-muted-foreground">Type here...</span>
         </div>
       </div>
     </div>

@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useTheme } from "next-themes";
 
 export default function Settings() {
+  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -204,15 +206,27 @@ export default function Settings() {
                   <Label className="text-base">Theme</Label>
                   <p className="text-sm text-muted-foreground mb-3">Choose your preferred theme</p>
                   <div className="grid grid-cols-3 gap-3">
-                    <Button variant="outline" className="h-20 flex flex-col items-center gap-2">
+                    <Button
+                      variant={theme === "light" ? "default" : "outline"}
+                      className="h-20 flex flex-col items-center gap-2"
+                      onClick={() => setTheme("light")}
+                    >
                       🌞
                       <span className="text-xs">Light</span>
                     </Button>
-                    <Button variant="outline" className="h-20 flex flex-col items-center gap-2 border-primary">
+                    <Button
+                      variant={theme === "dark" ? "default" : "outline"}
+                      className="h-20 flex flex-col items-center gap-2"
+                      onClick={() => setTheme("dark")}
+                    >
                       🌙
                       <span className="text-xs">Dark</span>
                     </Button>
-                    <Button variant="outline" className="h-20 flex flex-col items-center gap-2">
+                    <Button
+                      variant={theme === "system" ? "default" : "outline"}
+                      className="h-20 flex flex-col items-center gap-2"
+                      onClick={() => setTheme("system")}
+                    >
                       ⚡
                       <span className="text-xs">Auto</span>
                     </Button>

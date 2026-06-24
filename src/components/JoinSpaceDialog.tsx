@@ -3,27 +3,31 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 interface JoinSpaceDialogProps {
   children: React.ReactNode;
 }
 
 export function JoinSpaceDialog({ children }: JoinSpaceDialogProps) {
+  const [open, setOpen] = useState(false);
   const [spaceCode, setSpaceCode] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Joining space with code:", spaceCode);
-    // Handle space joining
+    toast({ title: "Joining space...", description: `Requesting access with code: ${spaceCode}` });
+    setSpaceCode("");
+    setOpen(false);
   };
 
   const handleRequestToJoin = () => {
-    console.log("Requesting to join space");
-    // Handle join request
+    toast({ title: "Request sent!", description: "The space admin will review your request." });
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

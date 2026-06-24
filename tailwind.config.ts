@@ -1,20 +1,3 @@
-import { useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Layout } from "./components/Layout";
-
-import Dashboard from "./pages/Dashboard";
-import Tasks from "./pages/Tasks";
-import Calendar from "./pages/Calendar";
-import Collaborate from "./pages/Collaborate";
-import Resources from "./pages/Resources";
-import Showcase from "./pages/Showcase";
-import Settings from "./pages/Settings";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -37,7 +20,7 @@ export default {
     extend: {
       colors: {
         textPrimary: "#1E1E1E",
-        buttonBg: "#1e1e1e33", // 20% opacity hex
+        buttonBg: "#1e1e1e33",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Link2, Paperclip } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ShareResourceDialogProps {
   children: React.ReactNode;
 }
 
 export function ShareResourceDialog({ children }: ShareResourceDialogProps) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -33,12 +36,13 @@ export function ShareResourceDialog({ children }: ShareResourceDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sharing resource:", formData);
-    // Handle resource sharing
+    toast({ title: "Resource shared!", description: `"${formData.title}" has been shared with your community.` });
+    setFormData({ title: "", description: "", links: "", niche: "Dev", resources: [] });
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

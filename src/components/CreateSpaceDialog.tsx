@@ -3,13 +3,16 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Plus } from "lucide-react";
+import { Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateSpaceDialogProps {
   children: React.ReactNode;
 }
 
 export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -32,12 +35,13 @@ export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Creating space:", formData);
-    // Handle space creation
+    toast({ title: "Space created!", description: `"${formData.name}" is ready for collaboration.` });
+    setFormData({ name: "", description: "", coverImage: null });
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

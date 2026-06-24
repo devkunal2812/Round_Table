@@ -6,7 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { AddGoalDialog } from "@/components/AddGoalDialog";
 import { CreateTaskDialog } from "@/components/CreateTaskDialog";
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+};
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 export default function Dashboard() {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const today = now.getDate();
+
   const [currentGoals, setCurrentGoals] = useState([
     { id: 1, title: "Complete Project Alpha", progress: 75, dueDate: "2024-01-15", priority: "High" },
     { id: 2, title: "Learn React Native", progress: 45, dueDate: "2024-01-25", priority: "Medium" },
@@ -56,10 +73,10 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-bold italic text-foreground mb-2">
-              Good morning, Captain! 👋
+              {getGreeting()}, Captain! 👋
             </h1>
             <p className="text-muted-foreground text-lg">
-              Welcome back to FlowHub. Let's make today productive!
+              Welcome back to Roundtable. Let's make today productive!
             </p>
           </div>
           <div className="flex gap-3">
@@ -177,21 +194,25 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
                   <Calendar className="h-5 w-5 text-dot-blue" />
-                  January 2024
+                  {MONTH_NAMES[currentMonth]} {currentYear}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                    <div key={day} className="p-2 font-medium text-muted-foreground">
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                    <div key={i} className="p-2 font-medium text-muted-foreground">
                       {day}
                     </div>
                   ))}
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
+                  {/* Empty cells for first day offset */}
+                  {Array.from({ length: new Date(currentYear, currentMonth, 1).getDay() }).map((_, i) => (
+                    <div key={`e-${i}`} />
+                  ))}
+                  {Array.from({ length: new Date(currentYear, currentMonth + 1, 0).getDate() }, (_, i) => i + 1).map((date) => (
                     <div 
                       key={date} 
                       className={`p-2 rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
-                        date === 15 ? 'bg-dot-blue text-white font-semibold' : 'text-foreground'
+                        date === today ? 'bg-dot-blue text-white font-semibold' : 'text-foreground'
                       }`}
                     >
                       {date}
