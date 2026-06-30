@@ -57,12 +57,18 @@ export function ShareShowcaseDialog({ children, onAdd }: ShareShowcaseDialogProp
         niche: formData.niche,
         likes: 0,
       })
-      .select("*, profiles(full_name, username)").single();
+      .select().single();
+
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setSaving(false); return; }
+
+    // Attach profile for immediate display
+    const { data: profile } = await supabase.from("profiles").select("full_name, username").eq("id", user.id).single();
+    const enriched = { ...data, profiles: profile };
 
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setSaving(false); return; }
 
     toast({ title: "Project showcased!", description: `"${formData.title}" is now live.` });
-    onAdd?.(data);
+    onAdd?.(enriched);
     setFormData({ title: "", description: "", projectLink: "", githubLink: "", niche: "Dev", tags: [] });
     setTagInput("");
     setSaving(false);

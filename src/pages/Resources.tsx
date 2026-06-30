@@ -61,9 +61,17 @@ export default function Resources() {
   const fetchResources = async () => {
     const { data } = await supabase
       .from("resources")
-      .select("*, profiles(full_name, username)")
+      .select("*")
       .order("created_at", { ascending: false });
-    setResources((data as Resource[]) ?? []);
+
+    if (!data) { setLoading(false); return; }
+
+    // Fetch profiles separately to avoid FK schema cache issue
+    const userIds = [...new Set(data.map(r => r.user_id))];
+    const { data: profiles } = await supabase.from("profiles").select("id, full_name, username").in("id", userIds);
+    const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+
+    setResources(data.map(r => ({ ...r, profiles: profileMap[r.user_id] ?? null })) as Resource[]);
     setLoading(false);
   };
 

@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { Bell, User, Shield, Palette, Globe, HelpCircle, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Bell, User, Shield, Palette, Globe, HelpCircle, Loader2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
 import { useAuthContext } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -17,13 +17,15 @@ export default function Settings() {
   const { user } = useAuthContext();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [notifications, setNotifications] = useState({
     email: true, push: false, desktop: true, marketing: false,
   });
 
   const [profile, setProfile] = useState({
-    full_name: "", username: "", role: "", bio: "", email: "",
+    full_name: "", username: "", role: "", bio: "", email: "", avatar_url: "",
   });
 
   // Load real profile from DB on mount
@@ -31,7 +33,7 @@ export default function Settings() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, username, role, bio")
+      .select("full_name, username, role, bio, avatar_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
@@ -40,10 +42,42 @@ export default function Settings() {
           username: data.username ?? "",
           role: data.role ?? "",
           bio: data.bio ?? "",
+          avatar_url: data.avatar_url ?? "",
           email: user.email ?? "",
         });
       });
   }, [user]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Avatar must be under 2MB", variant: "destructive" });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+      setUploadingAvatar(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+
+    await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+    setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+    toast({ title: "Avatar updated!" });
+    setUploadingAvatar(false);
+  };
 
   const saveProfile = async () => {
     if (!user) return;
@@ -112,14 +146,43 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
-                <Avatar className="h-20 w-20 bg-gradient-primary">
-                  <AvatarFallback className="bg-gradient-primary text-white text-2xl font-bold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative group">
+                  <Avatar className="h-20 w-20 bg-gradient-primary">
+                    <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+                    <AvatarFallback className="bg-gradient-primary text-white text-2xl font-bold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  {/* Camera overlay */}
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    {uploadingAvatar
+                      ? <Loader2 className="h-6 w-6 text-white animate-spin" />
+                      : <Camera className="h-6 w-6 text-white" />
+                    }
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
                 <div>
-                  <Button variant="outline" className="mb-2">Change Avatar</Button>
-                  <p className="text-sm text-muted-foreground">JPG, GIF or PNG. 1MB max.</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mb-2"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                  >
+                    {uploadingAvatar ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading...</> : "Change Avatar"}
+                  </Button>
+                  <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
                 </div>
               </div>
 

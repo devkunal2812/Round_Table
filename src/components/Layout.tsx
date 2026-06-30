@@ -7,7 +7,7 @@ import { GlobalSearch } from "@/components/GlobalSearch";
 import { ProfileDialog } from "@/components/ProfileDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,14 +36,14 @@ export function Layout({ onLogout }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuthContext();
-  const [profile, setProfile] = useState<{ full_name: string | null; username: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; username: string | null; avatar_url: string | null } | null>(null);
 
   // Load real profile from DB
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, username")
+      .select("full_name, username, avatar_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => setProfile(data));
@@ -58,6 +58,8 @@ export function Layout({ onLogout }: LayoutProps) {
   const handleSignOut = async () => {
     toast({ title: "Signed out", description: "See you next time!" });
     await onLogout();
+    // Force redirect to auth after sign out
+    window.location.hash = "#/auth";
   };
 
   return (
@@ -108,6 +110,7 @@ export function Layout({ onLogout }: LayoutProps) {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 transition-all duration-200 hover:scale-105 focus:outline-none">
                 <Avatar className="h-8 w-8 bg-gradient-primary">
+                  <AvatarImage src={profile?.avatar_url ?? undefined} alt={displayName} />
                   <AvatarFallback className="bg-gradient-primary text-white text-xs font-bold">
                     {initials}
                   </AvatarFallback>

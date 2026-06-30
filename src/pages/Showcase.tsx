@@ -51,9 +51,17 @@ export default function Showcase() {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("showcase_projects")
-      .select("*, profiles(full_name, username)")
+      .select("*")
       .order("created_at", { ascending: false });
-    setProjects((data as Project[]) ?? []);
+
+    if (!data) { setLoading(false); return; }
+
+    // Fetch profiles separately
+    const userIds = [...new Set(data.map(p => p.user_id))];
+    const { data: profiles } = await supabase.from("profiles").select("id, full_name, username").in("id", userIds);
+    const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+
+    setProjects(data.map(p => ({ ...p, profiles: profileMap[p.user_id] ?? null })) as Project[]);
     setLoading(false);
   };
 

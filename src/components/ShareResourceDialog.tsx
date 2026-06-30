@@ -36,12 +36,18 @@ export function ShareResourceDialog({ children, onAdd }: ShareResourceDialogProp
     const { data, error } = await supabase
       .from("resources")
       .insert({ user_id: user.id, title: formData.title, description: formData.description, link: formData.link, type: formData.type, niche: formData.niche, likes: 0 })
-      .select("*, profiles(full_name, username)").single();
+      .select().single();
+
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setSaving(false); return; }
+
+    // Attach current user's profile info for immediate display
+    const { data: profile } = await supabase.from("profiles").select("full_name, username").eq("id", user.id).single();
+    const enriched = { ...data, profiles: profile };
 
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setSaving(false); return; }
 
     toast({ title: "Resource shared!", description: `"${formData.title}" is now visible to everyone.` });
-    onAdd?.(data);
+    onAdd?.(enriched);
     setFormData({ title: "", description: "", link: "", type: "link", niche: "Dev" });
     setSaving(false);
     setOpen(false);
